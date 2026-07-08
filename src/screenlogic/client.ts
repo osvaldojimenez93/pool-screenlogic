@@ -6,7 +6,7 @@ const searchMs = Number(Bun.env.SCREENLOGIC_SEARCH_MS ?? 2500);
 export async function discoverUnits(): Promise<LocalUnit[]> {
 	const finder = new Screenlogic.FindUnits();
 	try {
-		return await finder.searchAsync(searchMs) as LocalUnit[];
+		return (await finder.searchAsync(searchMs)) as LocalUnit[];
 	} finally {
 		try {
 			finder.close();

@@ -1,8 +1,8 @@
-export { discoverUnits, withClient, setCircuitState } from "./client";
+export { discoverUnits, setCircuitState, withClient } from "./client";
 export type {
-	LocalUnit,
 	CircuitState,
-	EquipmentState,
 	ControllerCircuit,
 	ControllerConfig,
+	EquipmentState,
+	LocalUnit,
 } from "./types";

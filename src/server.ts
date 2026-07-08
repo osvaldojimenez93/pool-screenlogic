@@ -1,8 +1,6 @@
-/// <reference types="bun-types" />
-
 import { setCircuitState } from "./screenlogic";
-import { renderUnits, renderStatus, renderError } from "./views/partials";
 import { fileResponse, htmlResponse } from "./views/helpers";
+import { renderError, renderStatus, renderUnits } from "./views/partials";
 
 const port = Number(Bun.env.PORT ?? 3000);
 const hostname = Bun.env.HOST ?? "127.0.0.1";

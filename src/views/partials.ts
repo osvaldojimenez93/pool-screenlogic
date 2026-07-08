@@ -1,6 +1,6 @@
+import type { CircuitState, ControllerConfig, EquipmentState } from "../screenlogic";
 import { discoverUnits, withClient } from "../screenlogic";
-import type { CircuitState, EquipmentState, ControllerConfig } from "../screenlogic";
-import { escapeHtml, metric, formatTemperature } from "./helpers";
+import { escapeHtml, formatTemperature, metric } from "./helpers";
 
 export async function renderUnits(): Promise<string> {
 	const units = await discoverUnits();
@@ -86,7 +86,8 @@ function renderCircuitControls(circuits: CircuitState[], names: Map<number, stri
 						</button>
 					</div>
 				`;
-			}).join("")}
+			})
+			.join("")}
 		</div>
 	`;
 }

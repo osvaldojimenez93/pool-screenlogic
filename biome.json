@@ -11,7 +11,6 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
 			"correctness": {
 				"noUnusedVariables": "warn",
 				"noUnusedImports": "warn"
@@ -32,6 +31,7 @@
 		}
 	},
 	"files": {
-		"ignore": ["node_modules", "public/htmx.min.js", "bun.lock"]
+		"includes": ["src/**", "*.json"],
+		"ignoreUnknown": true
 	}
 }

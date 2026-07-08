@@ -86,8 +86,8 @@ function renderCircuitControls(circuits: CircuitState[], names: Map<number, stri
 						</button>
 					</div>
 				`;
-			})
-			.join("")}
+				})
+				.join("")}
 		</div>
 	`;
 }

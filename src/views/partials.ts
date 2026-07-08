@@ -11,7 +11,9 @@ export async function renderUnits(): Promise<string> {
 
 	return `
 		<div class="unit-list">
-			${units.map((unit) => `
+			${units
+				.map(
+					(unit) => `
 				<section class="unit-card">
 					<div>
 						<h3>${escapeHtml(unit.gatewayName)}</h3>
@@ -19,7 +21,9 @@ export async function renderUnits(): Promise<string> {
 					</div>
 					<span class="pill">type ${unit.type}</span>
 				</section>
-			`).join("")}
+			`,
+				)
+				.join("")}
 		</div>
 	`;
 }

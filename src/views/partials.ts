@@ -63,17 +63,21 @@ export async function renderStatus(): Promise<string> {
 	});
 }
 
-function renderCircuitControls(circuits: CircuitState[], names: Map<number, string | undefined>): string {
+function renderCircuitControls(
+	circuits: CircuitState[],
+	names: Map<number, string | undefined>,
+): string {
 	if (circuits.length === 0) {
 		return `<div class="notice">No circuits returned by the controller.</div>`;
 	}
 
 	return `
 		<div class="circuit-list">
-			${circuits.map((circuit) => {
-				const isOn = circuit.state === 1 || circuit.state === true;
-				const label = names.get(circuit.id) || circuit.name || `Circuit ${circuit.id}`;
-				return `
+			${circuits
+				.map((circuit) => {
+					const isOn = circuit.state === 1 || circuit.state === true;
+					const label = names.get(circuit.id) || circuit.name || `Circuit ${circuit.id}`;
+					return `
 					<div class="circuit-row">
 						<div>
 							<strong>${escapeHtml(label)}</strong>

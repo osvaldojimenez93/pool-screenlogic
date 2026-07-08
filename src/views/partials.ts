@@ -1,6 +1,6 @@
+import type { CircuitState, ControllerConfig, EquipmentState } from "../screenlogic";
 import { discoverUnits, withClient } from "../screenlogic";
-import type { CircuitState, EquipmentState, ControllerConfig } from "../screenlogic";
-import { escapeHtml, metric, formatTemperature } from "./helpers";
+import { escapeHtml, formatTemperature, metric } from "./helpers";
 
 export async function renderUnits(): Promise<string> {
 	const units = await discoverUnits();
@@ -11,7 +11,9 @@ export async function renderUnits(): Promise<string> {
 
 	return `
 		<div class="unit-list">
-			${units.map((unit) => `
+			${units
+				.map(
+					(unit) => `
 				<section class="unit-card">
 					<div>
 						<h3>${escapeHtml(unit.gatewayName)}</h3>
@@ -19,7 +21,9 @@ export async function renderUnits(): Promise<string> {
 					</div>
 					<span class="pill">type ${unit.type}</span>
 				</section>
-			`).join("")}
+			`,
+				)
+				.join("")}
 		</div>
 	`;
 }
@@ -59,17 +63,21 @@ export async function renderStatus(): Promise<string> {
 	});
 }
 
-function renderCircuitControls(circuits: CircuitState[], names: Map<number, string | undefined>): string {
+function renderCircuitControls(
+	circuits: CircuitState[],
+	names: Map<number, string | undefined>,
+): string {
 	if (circuits.length === 0) {
 		return `<div class="notice">No circuits returned by the controller.</div>`;
 	}
 
 	return `
 		<div class="circuit-list">
-			${circuits.map((circuit) => {
-				const isOn = circuit.state === 1 || circuit.state === true;
-				const label = names.get(circuit.id) || circuit.name || `Circuit ${circuit.id}`;
-				return `
+			${circuits
+				.map((circuit) => {
+					const isOn = circuit.state === 1 || circuit.state === true;
+					const label = names.get(circuit.id) || circuit.name || `Circuit ${circuit.id}`;
+					return `
 					<div class="circuit-row">
 						<div>
 							<strong>${escapeHtml(label)}</strong>
@@ -86,7 +94,8 @@ function renderCircuitControls(circuits: CircuitState[], names: Map<number, stri
 						</button>
 					</div>
 				`;
-			}).join("")}
+				})
+				.join("")}
 		</div>
 	`;
 }

@@ -47,7 +47,8 @@ export function formatHeatMode(
 	bodyIndex: number,
 	heaterConfig: HeaterConfig | undefined,
 ): string {
-	const hasSolar = bodyIndex === 0 ? heaterConfig?.body1SolarPresent : heaterConfig?.body2SolarPresent;
+	const hasSolar =
+		bodyIndex === 0 ? heaterConfig?.body1SolarPresent : heaterConfig?.body2SolarPresent;
 	const hasHeatPump =
 		bodyIndex === 0 ? heaterConfig?.solarHeatPumpPresent : heaterConfig?.thermaFloPresent;
 

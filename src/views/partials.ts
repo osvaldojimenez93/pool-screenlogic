@@ -65,7 +65,10 @@ export async function renderStatus(): Promise<string> {
 					</div>
 					<span class="pill">${config.degC ? "C" : "F"}</span>
 				</div>
-				${await renderPumpSection(client, equipmentConfig)}
+				${await renderPumpSection(
+					async (pumpId) => await client.pump.getPumpStatusAsync(pumpId),
+					equipmentConfig,
+				)}
 				${renderCircuitStates(state.circuitArray ?? [], circuitNames)}
 			</section>
 		`;
@@ -101,11 +104,7 @@ async function getEquipmentConfiguration(client: {
 }
 
 async function renderPumpSection(
-	client: {
-		pumps: {
-			getPumpStatusAsync(pumpId: number): Promise<PumpStatus>;
-		};
-	},
+	getPumpStatus: (pumpId: number) => Promise<PumpStatus>,
 	equipmentConfig: EquipmentConfiguration | undefined,
 ): Promise<string> {
 	const pumps = getPumps(equipmentConfig);
@@ -116,7 +115,7 @@ async function renderPumpSection(
 	const pumpStatuses = await Promise.allSettled(
 		pumps.map(async (pump) => ({
 			pump,
-			status: await client.pumps.getPumpStatusAsync(pump.id),
+			status: await getPumpStatus(pump.id),
 		})),
 	);
 

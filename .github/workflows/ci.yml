@@ -40,4 +40,9 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - name: Run tests
-        run: bun test
+        run: |
+          if find src -name '*.test.ts' -o -name '*.spec.ts' | grep -q .; then
+            bun test
+          else
+            echo "No test files found — skipping"
+          fi

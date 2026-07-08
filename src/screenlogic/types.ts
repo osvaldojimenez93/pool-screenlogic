@@ -13,13 +13,18 @@ export type CircuitState = {
 	name?: string;
 };
 
+export type BodyState = {
+	id: number;
+	currentTemp: number;
+	heatStatus: number;
+	setPoint: number;
+	coolSetPoint: number;
+	heatMode: number;
+};
+
 export type EquipmentState = {
 	airTemp?: number;
-	currentTemp?: number[];
-	heatStatus?: number[];
-	setPoint?: number[];
-	coolSetPoint?: number[];
-	heatMode?: number[];
+	bodies?: BodyState[];
 	circuitArray?: CircuitState[];
 	pH?: number;
 	orp?: number;

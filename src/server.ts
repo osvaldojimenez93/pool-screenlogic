@@ -1,4 +1,3 @@
-import { setCircuitState } from "./screenlogic";
 import { fileResponse, htmlResponse } from "./views/helpers";
 import { renderError, renderStatus, renderUnits } from "./views/partials";
 
@@ -25,13 +24,6 @@ Bun.serve({
 			}
 
 			if (request.method === "GET" && url.pathname === "/partials/status") {
-				return htmlResponse(await renderStatus());
-			}
-
-			const circuitMatch = url.pathname.match(/^\/partials\/circuits\/(\d+)\/(on|off)$/);
-			if (request.method === "POST" && circuitMatch) {
-				const [, circuitId, state] = circuitMatch;
-				await setCircuitState(Number(circuitId), state === "on");
 				return htmlResponse(await renderStatus());
 			}
 

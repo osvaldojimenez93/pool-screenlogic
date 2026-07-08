@@ -41,3 +41,28 @@ export type ControllerConfig = {
 	degC?: boolean;
 	circuitArray?: ControllerCircuit[];
 };
+
+export type HeaterConfig = {
+	body1SolarPresent?: boolean;
+	body2SolarPresent?: boolean;
+	solarHeatPumpPresent?: boolean;
+	thermaFloPresent?: boolean;
+};
+
+export type PumpConfig = {
+	id: number;
+	name?: string;
+};
+
+export type PumpStatus = {
+	isRunning: boolean;
+	pumpWatts: number;
+	pumpRPMs: number;
+	pumpGPMs: number;
+};
+
+export type EquipmentConfiguration = {
+	heaterConfig?: HeaterConfig;
+	numPumps?: number;
+	pumps?: PumpConfig[];
+};

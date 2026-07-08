@@ -63,7 +63,10 @@ export async function renderStatus(): Promise<string> {
 	});
 }
 
-function renderCircuitControls(circuits: CircuitState[], names: Map<number, string | undefined>): string {
+function renderCircuitControls(
+	circuits: CircuitState[],
+	names: Map<number, string | undefined>,
+): string {
 	if (circuits.length === 0) {
 		return `<div class="notice">No circuits returned by the controller.</div>`;
 	}

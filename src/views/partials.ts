@@ -44,8 +44,8 @@ export async function renderStatus(): Promise<string> {
 		return `
 			<section class="status-grid">
 				${metric("Air", formatTemperature(state.airTemp, config.degC))}
-				${metric("Pool", formatTemperature(state.currentTemp?.[0], config.degC), `set ${formatTemperature(state.setPoint?.[0], config.degC)}`)}
-				${metric("Spa", formatTemperature(state.currentTemp?.[1], config.degC), `set ${formatTemperature(state.setPoint?.[1], config.degC)}`)}
+				${metric("Pool", formatTemperature(state.bodies?.[0]?.currentTemp, config.degC), `set ${formatTemperature(state.bodies?.[0]?.setPoint, config.degC)}`)}
+				${metric("Spa", formatTemperature(state.bodies?.[1]?.currentTemp, config.degC), `set ${formatTemperature(state.bodies?.[1]?.setPoint, config.degC)}`)}
 				${metric("Salt", state.saltPPM ? `${state.saltPPM} ppm` : "--")}
 			</section>
 

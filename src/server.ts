@@ -28,14 +28,14 @@ Bun.serve({
 				return htmlResponse(await renderStatus());
 			}
 
-			const circuitMatch = url.pathname.match(/^\/partials\/circuits\/(\d+)\/(on|off)$/);
-			if (request.method === "POST" && circuitMatch) {
-				const [, circuitId, state] = circuitMatch;
-				await setCircuitState(Number(circuitId), state === "on");
-				return htmlResponse(await renderStatus());
-			}
+				const circuitMatch = url.pathname.match(/^\/partials\/circuits\/(\d+)\/(on|off)$/);
+				if (request.method === "POST" && circuitMatch) {
+					const [, circuitId, state] = circuitMatch;
+					await setCircuitState(Number(circuitId), state === "on");
+					return htmlResponse(await renderStatus());
+				}
 
-			return new Response("Not found", { status: 404 });
+				return new Response("Not found", { status: 404 });
 		} catch (error) {
 			return htmlResponse(renderError(error));
 		}

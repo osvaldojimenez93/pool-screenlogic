@@ -4,6 +4,10 @@ export type {
 	CircuitState,
 	ControllerCircuit,
 	ControllerConfig,
+	EquipmentConfiguration,
 	EquipmentState,
+	HeaterConfig,
 	LocalUnit,
+	PumpConfig,
+	PumpStatus,
 } from "./types";

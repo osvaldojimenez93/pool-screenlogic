@@ -198,10 +198,16 @@
 		}
 
 		.circuit-list,
+		.pump-grid,
+		.section-stack,
 		.unit-list {
 			display: grid;
 			gap: 10px;
 			margin-top: 16px;
+		}
+
+		.pump-grid {
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 		}
 
 		.circuit-row {

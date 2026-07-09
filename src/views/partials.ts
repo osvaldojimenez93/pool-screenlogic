@@ -1,6 +1,13 @@
-import type { CircuitState, ControllerConfig, EquipmentState } from "../screenlogic";
+import type {
+	CircuitState,
+	ControllerConfig,
+	EquipmentConfiguration,
+	EquipmentState,
+	PumpConfig,
+	PumpStatus,
+} from "../screenlogic";
 import { discoverUnits, withClient } from "../screenlogic";
-import { escapeHtml, formatTemperature, metric } from "./helpers";
+import { escapeHtml, formatHeatMode, formatHeatStatus, formatTemperature, metric } from "./helpers";
 
 export async function renderUnits(): Promise<string> {
 	const units = await discoverUnits();
@@ -34,6 +41,7 @@ export async function renderStatus(): Promise<string> {
 			client.equipment.getEquipmentStateAsync() as Promise<EquipmentState>,
 			client.equipment.getControllerConfigAsync() as Promise<ControllerConfig>,
 		]);
+		const equipmentConfig = await getEquipmentConfiguration(client);
 
 		const circuitNames = new Map(
 			(config.circuitArray ?? [])
@@ -44,8 +52,8 @@ export async function renderStatus(): Promise<string> {
 		return `
 			<section class="status-grid">
 				${metric("Air", formatTemperature(state.airTemp, config.degC))}
-				${metric("Pool", formatTemperature(state.bodies?.[0]?.currentTemp, config.degC), `set ${formatTemperature(state.bodies?.[0]?.setPoint, config.degC)}`)}
-				${metric("Spa", formatTemperature(state.bodies?.[1]?.currentTemp, config.degC), `set ${formatTemperature(state.bodies?.[1]?.setPoint, config.degC)}`)}
+				${renderBodyMetric("Pool", state, config, equipmentConfig, 0)}
+				${renderBodyMetric("Spa", state, config, equipmentConfig, 1)}
 				${metric("Salt", state.saltPPM ? `${state.saltPPM} ppm` : "--")}
 			</section>
 
@@ -57,13 +65,107 @@ export async function renderStatus(): Promise<string> {
 					</div>
 					<span class="pill">${config.degC ? "C" : "F"}</span>
 				</div>
-				${renderCircuitControls(state.circuitArray ?? [], circuitNames)}
+				${await renderPumpSection(
+					async (pumpId) => await client.pump.getPumpStatusAsync(pumpId),
+					equipmentConfig,
+				)}
+				${renderCircuitStates(state.circuitArray ?? [], circuitNames)}
 			</section>
 		`;
 	});
 }
 
-function renderCircuitControls(
+function renderBodyMetric(
+	label: string,
+	state: EquipmentState,
+	config: ControllerConfig,
+	equipmentConfig: EquipmentConfiguration | undefined,
+	bodyIndex: number,
+): string {
+	const body = state.bodies?.[bodyIndex];
+	const details = [
+		`set ${formatTemperature(body?.setPoint, config.degC)}`,
+		`mode ${formatHeatMode(body?.heatMode, bodyIndex, equipmentConfig?.heaterConfig)}`,
+		`status ${formatHeatStatus(body?.heatStatus)}`,
+	].join(" · ");
+	return metric(label, formatTemperature(body?.currentTemp, config.degC), details);
+}
+
+async function getEquipmentConfiguration(client: {
+	equipment: {
+		getEquipmentConfigurationAsync(): Promise<EquipmentConfiguration>;
+	};
+}): Promise<EquipmentConfiguration | undefined> {
+	try {
+		return await client.equipment.getEquipmentConfigurationAsync();
+	} catch {
+		return undefined;
+	}
+}
+
+async function renderPumpSection(
+	getPumpStatus: (pumpId: number) => Promise<PumpStatus>,
+	equipmentConfig: EquipmentConfiguration | undefined,
+): Promise<string> {
+	const pumps = getPumps(equipmentConfig);
+	if (pumps.length === 0) {
+		return `<div class="notice">No pumps reported by the controller.</div>`;
+	}
+
+	const pumpStatuses = await Promise.allSettled(
+		pumps.map(async (pump) => ({
+			pump,
+			status: await getPumpStatus(pump.id),
+		})),
+	);
+
+	return `
+		<div class="section-stack">
+			<div>
+				<h3>Pumps</h3>
+				<p>Live pump telemetry</p>
+			</div>
+			<div class="pump-grid">
+				${pumpStatuses
+					.map((result, index) => {
+						if (result.status === "rejected") {
+							return `
+								<div class="metric">
+									<span>${escapeHtml(pumps[index]?.name ?? `Pump ${index + 1}`)}</span>
+									<strong>Unavailable</strong>
+									<small>${escapeHtml(result.reason instanceof Error ? result.reason.message : String(result.reason))}</small>
+								</div>
+							`;
+						}
+
+						const { pump, status } = result.value;
+						return `
+							<div class="metric">
+								<span>${escapeHtml(pump.name ?? `Pump ${pump.id}`)}</span>
+								<strong>${status.isRunning ? "Running" : "Idle"}</strong>
+								<small>${escapeHtml(`${status.pumpWatts} W · ${status.pumpRPMs} RPM · ${status.pumpGPMs} GPM`)}</small>
+							</div>
+						`;
+					})
+					.join("")}
+			</div>
+		</div>
+	`;
+}
+
+function getPumps(equipmentConfig: EquipmentConfiguration | undefined): PumpConfig[] {
+	const configuredPumps = (equipmentConfig?.pumps ?? []).filter((pump) => pump.id > 0);
+	if (configuredPumps.length > 0) {
+		return configuredPumps;
+	}
+
+	return Array.from({ length: equipmentConfig?.numPumps ?? 0 }, (_, index) => ({
+		id: index + 1,
+		name: `Pump ${index + 1}`,
+	}));
+}
+
+function renderCircuitStates(
 	circuits: CircuitState[],
 	names: Map<number, string | undefined>,
 ): string {
@@ -83,15 +185,7 @@ function renderCircuitControls(
 							<strong>${escapeHtml(label)}</strong>
 							<span>${isOn ? "On" : "Off"}</span>
 						</div>
-						<button
-							type="button"
-							class="${isOn ? "secondary" : "primary"}"
-							hx-post="/partials/circuits/${circuit.id}/${isOn ? "off" : "on"}"
-							hx-target="#status"
-							hx-swap="innerHTML"
-						>
-							${isOn ? "Turn Off" : "Turn On"}
-						</button>
+						<span class="pill">${isOn ? "On" : "Off"}</span>
 					</div>
 				`;
 				})
